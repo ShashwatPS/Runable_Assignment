@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx tsc",
     "start": "node dist/app.js",
-    "dev": "npm run build && npm start"
+    "db:generate": "npx prisma generate --schema=./src/prisma/schema.prisma",
+    "dev": "npm run build && npm run db:generate && npm start"
   },
   "keywords": [],
   "author": "",
