@@ -19,6 +19,12 @@ export const getAllPages = async (req: Request, res: Response): Promise<void> =>
 
 export const getPageById = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
+
+  if (!id) {
+    res.status(400).json({ error: 'Page ID is required' });
+    return;
+  }
+
   try {
     const page = await prisma.page.findUnique({
       where: { id },
