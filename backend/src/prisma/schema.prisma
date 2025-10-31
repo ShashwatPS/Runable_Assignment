@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Page {
+  id        String   @id @default(uuid())
+  title     String
+  blocks    Block[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Block {
+  id             String        @id @default(uuid())
+  page           Page          @relation(fields: [pageId], references: [id])
+  pageId         String
+  order          Int
+  type           BlockType
+  textBlock      TextBlock?    @relation(fields: [textBlockId], references: [id])
+  textBlockId    String?
+  headingBlock   HeadingBlock? @relation(fields: [headingBlockId], references: [id])
+  headingBlockId String?
+  imageBlock     ImageBlock?   @relation(fields: [imageBlockId], references: [id])
+  imageBlockId   String?
+  codeBlock      CodeBlock?    @relation(fields: [codeBlockId], references: [id])
+  codeBlockId    String?
+  tableBlock     TableBlock?   @relation(fields: [tableBlockId], references: [id])
+  tableBlockId   String?
+  webpageEmbed   WebpageEmbed? @relation(fields: [webpageEmbedId], references: [id])
+  webpageEmbedId String?
+}
+
+enum BlockType {
+  TEXT
+  HEADING
+  IMAGE
+  CODE
+  TABLE
+  WEBPAGE_EMBED
+}
+
+model TextBlock {
+  id      String  @id @default(uuid())
+  content String
+  Block   Block[]
+}
+
+model HeadingBlock {
+  id      String  @id @default(uuid())
+  content String
+  Block   Block[]
+}
+
+model ImageBlock {
+  id      String  @id @default(uuid())
+  url     String
+  caption String?
+  Block   Block[]
+}
+
+model CodeBlock {
+  id       String  @id @default(uuid())
+  code     String
+  language String?
+  Block    Block[]
+}
+
+model TableBlock {
+  id    String  @id @default(uuid())
+  data  Json
+  Block Block[]
+}
+
+model WebpageEmbed {
+  id           String  @id @default(uuid())
+  url          String
+  title        String?
+  Block        Block[]
+}
