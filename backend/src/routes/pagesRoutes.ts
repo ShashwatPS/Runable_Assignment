@@ -3,9 +3,9 @@ import { home, getAllPages, getPageById, createPage } from '../controllers/pageC
 
 const router = Router();
 
-router.get('/', home);
-router.get('/pages', getAllPages);
-router.get('/pages/:id', getPageById);
-router.post('/pages', createPage);
+router.get('/check', home);
+router.get('/', getAllPages);
+router.get('/:id', getPageById);
+router.post('/', createPage);
 
 export default router;
