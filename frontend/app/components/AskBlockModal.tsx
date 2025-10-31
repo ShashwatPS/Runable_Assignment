@@ -60,7 +60,7 @@ export const AskBlockModal: React.FC<AskBlockModalProps> = ({
             onClick={onClose}
             className="p-1 rounded-full hover:bg-gray-200"
           >
-            <X size={20} />
+            <X size={20} color="black"/>
           </button>
         </div>
 

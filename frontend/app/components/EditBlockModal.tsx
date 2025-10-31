@@ -195,7 +195,7 @@ export const EditBlockModal: React.FC<EditBlockModalProps> = ({
             onClick={onClose}
             className="p-1 rounded-full hover:bg-gray-200"
           >
-            <X size={20} />
+            <X size={20} color="black"/>
           </button>
         </div>
         <form onSubmit={handleSubmit}>
