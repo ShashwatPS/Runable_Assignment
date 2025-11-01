@@ -387,3 +387,157 @@ const getBlockContentAsString = (block: any): string => {
       return "";
   }
 };
+
+export const createPageWithAI = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { prompt } = req.body;
+
+    if (!prompt) {
+      res.status(400).json({ error: 'A "prompt" is required in the body' });
+      return;
+    }
+    const systemPrompt = `
+You are an AI assistant that generates structured page content for a block-based editor.
+The user will provide a prompt, and you must return a JSON object with a 'title' for the page and an array of 'blocks'.
+Your response MUST be a single, valid JSON object. Do not include markdown formatting like \`\`\`json ... \`\`\`.
+
+The allowed block types are: 'HEADING', 'TEXT', 'CODE', 'TABLE', 'WEBPAGE_EMBED', 'IMAGE'.
+
+Follow this JSON schema strictly:
+{
+  "title": "A concise and relevant title for the page",
+  "blocks": [
+    {
+      "type": "HEADING",
+      "data": { "content": "The heading text" }
+    },
+    {
+      "type": "TEXT",
+      "data": { "content": "The paragraph text." }
+    },
+    {
+      "type": "CODE",
+      "data": { "code": "console.log('Hello');", "language": "javascript" }
+    },
+    {
+      "type": "TABLE",
+      "data": { "data": [["Header 1", "Header 2"], ["Row 1 Col 1", "Row 1 Col 2"]] }
+    },
+    {
+      "type": "WEBPAGE_EMBED",
+      "data": { "url": "https://www.example.com", "title": "Optional Title" }
+    },
+    {
+      "type": "IMAGE",
+      "data": { "url": "https://placeholder.com/image-description.jpg", "caption": "A descriptive caption of the image." }
+    }
+  ]
+}
+`;
+
+    const userQuery = `USER PROMPT: "${prompt}"`;
+
+    const aiResponseString = await callGeminiAPI(userQuery, systemPrompt);
+
+    let aiResponse: {
+      title: string;
+
+      blocks: Array<{
+        type: 'HEADING' | 'TEXT' | 'CODE' | 'TABLE' | 'WEBPAGE_EMBED' | 'IMAGE';
+        data: any;
+      }>;
+    };
+
+    try {
+      aiResponse = JSON.parse(aiResponseString);
+    } catch (parseError) {
+      console.error('Failed to parse AI JSON response:', aiResponseString);
+      res.status(500).json({ error: 'Failed to generate page: AI returned invalid format.' });
+      return;
+    }
+
+    const { title, blocks } = aiResponse;
+
+    if (!title || !Array.isArray(blocks) || blocks.length === 0) {
+      res.status(500).json({ error: 'Failed to generate page: AI returned incomplete data.' });
+      return;
+    }
+
+    const newPage = await prisma.$transaction(async (tx) => {
+      const page = await tx.page.create({
+        data: { title: title },
+      });
+
+      let order = 0;
+      for (const block of blocks) {
+        const { type, data } = block;
+
+        const createData: any = {
+          page: { connect: { id: page.id } },
+          order: order,
+          type: type,
+        };
+
+        switch (type) {
+          case 'TEXT':
+            createData.textBlock = { create: { content: data.content } };
+            break;
+          case 'HEADING':
+            createData.headingBlock = { create: { content: data.content } };
+            break;
+          case 'CODE':
+            createData.codeBlock = {
+              create: { code: data.code, language: data.language },
+            };
+            break;
+          case 'TABLE':
+            createData.tableBlock = { create: { data: data.data } };
+            break;
+          case 'WEBPAGE_EMBED':
+            createData.webpageEmbed = {
+              create: {
+                url: data.url,
+                title: data.title,
+              },
+            };
+            break;
+          case 'IMAGE':
+            createData.imageBlock = {
+              create: {
+                url: data.url, 
+                caption: data.caption,
+              },
+            };
+            break;
+          default:
+            console.warn(`AI returned unhandled block type: ${type}`);
+            continue; 
+        }
+
+        await tx.block.create({ data: createData });
+        order++;
+      }
+      return page;
+    });
+
+    const fullPage = await prisma.page.findUnique({
+      where: { id: newPage.id },
+      include: {
+        blocks: {
+          orderBy: { order: 'asc' },
+          include: includeAllBlockTypes, 
+        },
+      },
+    });
+
+    res.status(201).json(fullPage);
+
+  } catch (error) {
+    console.error('Failed to create page with AI:', error);
+    if (error instanceof Error && error.message.includes('Gemini')) {
+      res.status(502).json({ error: 'Failed to communicate with the AI service: ' + error.message });
+    } else {
+      res.status(500).json({ error: 'An unknown error occurred while creating the page' });
+    }
+  }
+};
