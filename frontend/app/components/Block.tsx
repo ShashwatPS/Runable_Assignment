@@ -65,7 +65,15 @@ export const BlockComponent: React.FC<BlockComponentProps> = ({
         );
       case 'TABLE':
         try {
-          const data = JSON.parse(block.tableBlock?.data) as string[][];
+          let data: string[][];
+          if (typeof block.tableBlock?.data === 'string') {
+            data = JSON.parse(block.tableBlock.data);
+          } else {
+            data = block.tableBlock?.data;
+          }
+          if (!Array.isArray(data) || !Array.isArray(data[0])) {
+            throw new Error('Not a 2D array');
+          }
           return (
             <div className="overflow-x-auto">
               <table className="min-w-full border border-gray-300 divide-y divide-gray-300">

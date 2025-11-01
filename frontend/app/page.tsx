@@ -47,6 +47,11 @@ export default function HomePage() {
     }
   };
 
+  const handlePageCreatedWithAI = async (newPage: Page) => {
+    await loadPages();
+    setSelectedPageId(newPage.id);
+  };
+
   return (
     <div className="flex h-screen w-screen bg-white">
       <Sidebar
@@ -55,6 +60,7 @@ export default function HomePage() {
         onSelectPage={setSelectedPageId}
         onNewPage={handleNewPage}
         isLoading={isLoadingPages}
+        onPageCreatedWithAI={handlePageCreatedWithAI}
       />
 
       {selectedPageId ? (
