@@ -15,6 +15,7 @@ import { AddBlockMenu } from './AddBlock';
 import { EditBlockModal } from './EditBlockModal';
 import { AskBlockModal } from './AskBlockModal';
 
+
 interface PageDisplayProps {
   selectedPageId: string;
 }
@@ -152,9 +153,9 @@ export const PageDisplay: React.FC<PageDisplayProps> = ({ selectedPageId }) => {
         <AskBlockModal
           block={askingBlock}
           onClose={() => setAskingBlock(null)}
+          onSave={handleUpdateBlock}
         />
       )}
     </main>
   );
 };
-
