@@ -48,12 +48,11 @@ export const CreateWithAIModal: React.FC<CreateWithAIModalProps> = ({
       >
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-800">
-            <Sparkles className="w-5 h-5 inline-block mr-2 text-purple-500" />
             Create a new page with AI
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-black hover:text-gray-600"
           >
             <X size={24} />
           </button>
@@ -71,7 +70,7 @@ export const CreateWithAIModal: React.FC<CreateWithAIModalProps> = ({
               id="ai-prompt-textarea"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
+              className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 text-black"
               placeholder="e.g., 'A simple React component for a to-do list' or 'A meeting agenda for the Q4 planning session'"
               rows={4}
             />
@@ -91,11 +90,9 @@ export const CreateWithAIModal: React.FC<CreateWithAIModalProps> = ({
               disabled={isLoading || !prompt.trim()}
               className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? (
+              {isLoading &&
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="mr-2 h-4 w-4" />
-              )}
+              }
               Generate Page
             </button>
           </div>
