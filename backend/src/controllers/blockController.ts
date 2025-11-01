@@ -403,6 +403,10 @@ Your response MUST be a single, valid JSON object. Do not include markdown forma
 
 The allowed block types are: 'HEADING', 'TEXT', 'CODE', 'TABLE', 'WEBPAGE_EMBED', 'IMAGE'.
 
+IMPORTANT:
+- For WEBPAGE_EMBED blocks, only use real, public website URLs (do NOT use localhost, internal, or private URLs).
+- For IMAGE blocks, only use real image URLs from the internet (do NOT use placeholder or dummy links; use actual images relevant to the content).
+
 Follow this JSON schema strictly:
 {
   "title": "A concise and relevant title for the page",
@@ -429,7 +433,7 @@ Follow this JSON schema strictly:
     },
     {
       "type": "IMAGE",
-      "data": { "url": "https://placeholder.com/image-description.jpg", "caption": "A descriptive caption of the image." }
+      "data": { "url": "https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png", "caption": "A descriptive caption of the image." }
     }
   ]
 }
