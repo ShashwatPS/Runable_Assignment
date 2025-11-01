@@ -463,7 +463,7 @@ Follow this JSON schema strictly:
       return;
     }
 
-    const newPage = await prisma.$transaction(async (tx) => {
+    const newPage = await prisma.$transaction(async (tx: any) => {
       const page = await tx.page.create({
         data: { title: title },
       });
